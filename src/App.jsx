@@ -9,61 +9,62 @@ import {
 const DEMO_REFERENCE_DATE = '2026-10-24';
 const DEFAULT_CONSULTANT_NAME = 'Dr. Ananya Roy (Lead Nutritionist)';
 
+// Exact seed data mandated by the Kayro specification (normalized to ISO)
 const INITIAL_SAMPLE_DATA = [
   {
     id: 'apt-1',
-    clientName: 'Aarav Sharma',
+    clientName: 'Riya Shah',
     consultantName: DEFAULT_CONSULTANT_NAME,
-    phone: '+91 98765 43210',
-    date: '2026-10-25',
+    phone: '98200 11111',
+    date: '2026-10-24',
     time: '10:00',
     status: 'Booked',
     confirmedAttendance: false,
-    focusLog: { primaryGoal: 'Sustainable fat loss & energy balance', digestiveConcerns: 'Occasional bloating after high-sodium meals' }
+    focusLog: { primaryGoal: 'Gut health & energy balance', digestiveConcerns: 'Occasional bloating after lunch' }
   },
   {
     id: 'apt-2',
-    clientName: 'Priya Nair',
+    clientName: 'Arjun Mehta',
     consultantName: DEFAULT_CONSULTANT_NAME,
-    phone: '+91 98111 22334',
+    phone: '98200 22222',
     date: '2026-10-24',
-    time: '14:30',
-    status: 'Completed',
+    time: '11:30',
+    status: 'Booked',
     confirmedAttendance: true,
-    focusLog: { primaryGoal: 'Gut health optimization', digestiveConcerns: 'None reported' }
+    focusLog: { primaryGoal: 'Lean muscle recovery & protein timing', digestiveConcerns: 'None reported' }
   },
   {
     id: 'apt-3',
-    clientName: 'Rohan Mehta',
+    clientName: 'Riya Shah',
     consultantName: DEFAULT_CONSULTANT_NAME,
-    phone: '',
-    date: '2026-10-24',
+    phone: '98200 11111',
+    date: '2026-10-25',
     time: '16:00',
     status: 'Booked',
     confirmedAttendance: true,
-    focusLog: { primaryGoal: 'Muscle hyper-nutrition & hydration', digestiveConcerns: 'Acid reflux during late dinners' }
+    focusLog: { primaryGoal: 'Curbing late evening cravings', digestiveConcerns: 'Acid reflux during late dinners' }
   },
   {
     id: 'apt-4',
-    clientName: 'Ananya Deshmukh',
+    clientName: 'Meera Iyer',
     consultantName: DEFAULT_CONSULTANT_NAME,
-    phone: '+91 97654 32109',
-    date: '2026-10-22',
-    time: '11:15',
-    status: 'Completed',
+    phone: '',
+    date: '2026-10-23',
+    time: '09:00',
+    status: 'Done',
     confirmedAttendance: true,
-    focusLog: { primaryGoal: 'Thyroid profile management', digestiveConcerns: 'Sluggish morning digestion' }
+    focusLog: { primaryGoal: 'Thyroid profile nutrition strategy', digestiveConcerns: 'Sluggish morning metabolism' }
   },
   {
     id: 'apt-5',
-    clientName: 'Vikram Singh',
+    clientName: 'Kabir Rao',
     consultantName: DEFAULT_CONSULTANT_NAME,
-    phone: '+91 99000 11223',
-    date: '2026-10-28',
-    time: '15:00',
-    status: 'Booked',
+    phone: '98200 33333',
+    date: '2026-10-22',
+    time: '14:00',
+    status: 'No-show',
     confirmedAttendance: false,
-    focusLog: { primaryGoal: 'Endurance runner race prep', digestiveConcerns: 'None' }
+    focusLog: { primaryGoal: 'Post-workout endurance fueling', digestiveConcerns: 'None' }
   }
 ];
 
@@ -74,10 +75,12 @@ export default function App() {
     if (saved) {
       try {
         const parsed = JSON.parse(saved);
-        if (Array.isArray(parsed)) {
+        if (Array.isArray(parsed) && parsed.length > 0) {
           return parsed.map((apt) => ({
             ...apt,
             consultantName: apt.consultantName || DEFAULT_CONSULTANT_NAME,
+            // Fallback mapper for any stale legacy records
+            status: apt.status === 'Completed' ? 'Done' : apt.status === 'Cancelled' ? 'No-show' : apt.status,
           }));
         }
       } catch (e) {
@@ -87,7 +90,7 @@ export default function App() {
     return INITIAL_SAMPLE_DATA;
   });
 
-  // Client view tab
+  // Client view tab: upcoming vs past/history
   const [clientTab, setClientTab] = useState('upcoming'); // 'upcoming' | 'past'
 
   // Nutritionist filters
@@ -126,8 +129,10 @@ export default function App() {
 
   const resetData = () => {
     setAppointments(INITIAL_SAMPLE_DATA);
-    localStorage.removeItem('wellness_appointments_data');
+    localStorage.setItem('wellness_appointments_data', JSON.stringify(INITIAL_SAMPLE_DATA));
     setFocusLogSubmitted(false);
+    setSearchQuery('');
+    setTodayOnly(false);
   };
 
   // Double-booking check
@@ -141,7 +146,7 @@ export default function App() {
     );
   };
 
-  // Find next upcoming appointment for demo client
+  // Find next upcoming appointment for demo client (Riya Shah on or after reference date)
   const nextClientAppointment = useMemo(() => {
     const upcoming = appointments
       .filter((a) => a.date >= DEMO_REFERENCE_DATE && a.status === 'Booked')
@@ -176,7 +181,7 @@ export default function App() {
     setFocusLogSubmitted(true);
   };
 
-  // Status Change
+  // Status Change (strictly Booked, Done, or No-show)
   const handleStatusChange = (id, newStatus) => {
     setAppointments((prev) =>
       prev.map((apt) => (apt.id === id ? { ...apt, status: newStatus } : apt))
@@ -202,12 +207,12 @@ export default function App() {
       id: `apt-${Date.now()}`,
       clientName: formData.clientName.trim(),
       consultantName: DEFAULT_CONSULTANT_NAME,
-      phone: formData.phone.trim() || 'Not Provided',
+      phone: formData.phone.trim(),
       date: formData.date,
       time: formData.time,
       status: 'Booked',
       confirmedAttendance: false,
-      focusLog: { primaryGoal: 'Introductory assessment', digestiveConcerns: 'None' },
+      focusLog: { primaryGoal: 'New intake assessment', digestiveConcerns: 'None reported' },
     };
 
     setAppointments((prev) => [...prev, newApt]);
@@ -256,6 +261,20 @@ export default function App() {
     });
   }, [appointments, searchQuery, todayOnly]);
 
+  // Status Styling Badge Helper (Three distinct colors)
+  const getStatusBadgeClass = (status) => {
+    switch (status) {
+      case 'Booked':
+        return 'bg-blue-50 text-blue-700 border-blue-200';
+      case 'Done':
+        return 'bg-emerald-50 text-emerald-700 border-emerald-200';
+      case 'No-show':
+        return 'bg-rose-50 text-rose-700 border-rose-200';
+      default:
+        return 'bg-slate-100 text-slate-700 border-slate-200';
+    }
+  };
+
   return (
     <div className="min-h-screen bg-slate-50 text-slate-900 font-sans">
       {/* Top Navigation & Instant View Switcher */}
@@ -300,7 +319,7 @@ export default function App() {
 
             <button
               onClick={resetData}
-              title="Reset sample appointments"
+              title="Reset to Kayro assignment sample data"
               className="p-2 text-slate-400 hover:text-slate-600 rounded-lg hover:bg-slate-100 transition-colors"
             >
               <RefreshCw className="h-4 w-4" />
@@ -323,7 +342,7 @@ export default function App() {
                       Upcoming Consultation
                     </span>
                     <h2 className="text-2xl font-bold text-slate-800 mt-2">
-                      {nextClientAppointment.date === '2026-10-25' ? 'Tomorrow’s Nutrition Check-in' : 'Next Session'}
+                      Next Consultation ({nextClientAppointment.clientName})
                     </h2>
                     <p className="text-sm text-slate-500">With {nextClientAppointment.consultantName || DEFAULT_CONSULTANT_NAME}</p>
                   </div>
@@ -344,7 +363,7 @@ export default function App() {
                   <div>
                     <p className="text-sm font-semibold text-slate-800">
                       Attendance Status:{' '}
-                      <span className={nextClientAppointment.confirmedAttendance ? 'text-emerald-700' : 'text-amber-700'}>
+                      <span className={nextClientAppointment.confirmedAttendance ? 'text-emerald-700 font-bold' : 'text-amber-700 font-bold'}>
                         {nextClientAppointment.confirmedAttendance ? 'Confirmed' : 'Pending Confirmation'}
                       </span>
                     </p>
@@ -430,7 +449,7 @@ export default function App() {
                     Reschedule
                   </button>
                   <button
-                    onClick={() => handleStatusChange(nextClientAppointment.id, 'Cancelled')}
+                    onClick={() => handleStatusChange(nextClientAppointment.id, 'No-show')}
                     className="px-4 py-2 text-xs font-semibold text-rose-600 hover:text-rose-700 bg-rose-50 border border-rose-100 rounded-xl hover:bg-rose-100/60 transition-colors"
                   >
                     Cancel Session
@@ -490,19 +509,19 @@ export default function App() {
                   .map((apt) => (
                     <div key={apt.id} className="py-4 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
                       <div className="min-w-0">
-                        <p className="text-sm font-bold text-slate-800">{apt.clientName}</p>
+                        <div className="flex items-center gap-2">
+                          <p className="text-sm font-bold text-slate-800">{apt.clientName}</p>
+                          <span className={`text-[11px] font-semibold px-2 py-0.5 rounded-full border ${getStatusBadgeClass(apt.status)}`}>
+                            {apt.status}
+                          </span>
+                        </div>
                         <p className="text-xs text-slate-500 mt-1">
                           Consultant: <span className="font-semibold text-slate-700">{apt.consultantName || DEFAULT_CONSULTANT_NAME}</span>
                         </p>
                       </div>
                       <div className="flex flex-wrap items-center justify-between sm:justify-end gap-2 sm:gap-3">
                         <div className="flex items-center gap-3 text-xs text-slate-600">
-                          <span className="whitespace-nowrap">{apt.date} · {apt.time}</span>
-                          <span className={`rounded-full px-2.5 py-1 font-semibold ${
-                            apt.status === 'Booked' ? 'bg-amber-50 text-amber-700' :
-                            apt.status === 'Completed' ? 'bg-emerald-50 text-emerald-700' :
-                            'bg-slate-100 text-slate-600'
-                          }`}>{apt.status}</span>
+                          <span className="whitespace-nowrap">📅 {apt.date} · {apt.time}</span>
                         </div>
                         {apt.status === 'Booked' && (
                           <div className="flex items-center gap-2">
@@ -513,7 +532,7 @@ export default function App() {
                               Reschedule
                             </button>
                             <button
-                              onClick={() => handleStatusChange(apt.id, 'Cancelled')}
+                              onClick={() => handleStatusChange(apt.id, 'No-show')}
                               className="text-xs text-rose-600 hover:text-rose-700 border border-rose-100 px-3 py-1 rounded-lg"
                             >
                               Cancel
@@ -626,17 +645,11 @@ export default function App() {
                           <select
                             value={apt.status}
                             onChange={(e) => handleStatusChange(apt.id, e.target.value)}
-                            className={`text-xs font-semibold rounded-lg px-2 py-1 border transition-all ${
-                              apt.status === 'Booked'
-                                ? 'bg-amber-50 text-amber-700 border-amber-200'
-                                : apt.status === 'Completed'
-                                ? 'bg-emerald-50 text-emerald-700 border-emerald-200'
-                                : 'bg-rose-50 text-rose-700 border-rose-200'
-                            }`}
+                            className={`text-xs font-semibold rounded-lg px-2.5 py-1 border transition-all ${getStatusBadgeClass(apt.status)}`}
                           >
                             <option value="Booked">Booked</option>
-                            <option value="Completed">Completed</option>
-                            <option value="Cancelled">Cancelled</option>
+                            <option value="Done">Done</option>
+                            <option value="No-show">No-show</option>
                           </select>
                         </td>
                         <td className="py-3 px-4 text-right">
@@ -702,7 +715,7 @@ export default function App() {
                   type="tel"
                   value={formData.phone}
                   onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
-                  placeholder="+91 98765 00000"
+                  placeholder="98200 44444"
                   className="w-full text-xs px-3 py-2 border rounded-xl border-slate-200 focus:outline-none focus:ring-1 focus:ring-emerald-600"
                 />
               </div>
@@ -726,7 +739,7 @@ export default function App() {
                   >
                     <option value="09:00">09:00 AM</option>
                     <option value="10:00">10:00 AM</option>
-                    <option value="11:15">11:15 AM</option>
+                    <option value="11:30">11:30 AM</option>
                     <option value="14:00">02:00 PM</option>
                     <option value="14:30">02:30 PM</option>
                     <option value="16:00">04:00 PM</option>
@@ -799,7 +812,7 @@ export default function App() {
                 >
                   <option value="09:00">09:00 AM</option>
                   <option value="10:00">10:00 AM</option>
-                  <option value="11:15">11:15 AM</option>
+                  <option value="11:30">11:30 AM</option>
                   <option value="14:00">02:00 PM</option>
                   <option value="14:30">02:30 PM</option>
                   <option value="16:00">04:00 PM</option>
@@ -846,7 +859,7 @@ export default function App() {
             </div>
 
             <div className="flex justify-between items-center">
-              <span className="text-xs text-slate-400">Recipient: {activeWhatsappApt.phone || 'No phone'}</span>
+              <span className="text-xs text-slate-400">Recipient: {activeWhatsappApt.phone || 'No phone recorded'}</span>
               <button
                 onClick={() => {
                   const text = `Hi ${activeWhatsappApt.clientName}, this is a gentle reminder from Prana Wellness regarding your upcoming nutrition consultation scheduled for ${activeWhatsappApt.date} at ${activeWhatsappApt.time}. Please reply with CONFIRM to lock in your slot.`;
@@ -865,5 +878,3 @@ export default function App() {
     </div>
   );
 }
-
-
