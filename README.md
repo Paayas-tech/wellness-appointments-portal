@@ -1,16 +1,48 @@
-# React + Vite
+# 🌿 Prana Wellness — Client & Nutritionist Appointment Portal
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+A responsive, dual-sided appointment management web application built with **React**, **Vite**, and **Tailwind CSS**. It provides client-facing booking with focus logging alongside an operational dashboard for nutritionists with real-time analytics and reminder generation.
 
-Currently, two official plugins are available:
+---
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
+## 🚀 Live Demo
+- **Live Deployment:** [View on Vercel](https://wellness-appointments-portal.vercel.app) *(replace with your exact Vercel link)*
+- **GitHub Repository:** [Paayas-tech/wellness-appointments-portal](https://github.com/Paayas-tech/wellness-appointments-portal)
 
-## React Compiler
+---
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+## 🌟 Key Features
 
-## Expanding the ESLint configuration
+### 👤 Client Experience
+- **Next Consultation Spotlight:** Highlight upcoming sessions with one-tap attendance confirmation.
+- **Pre-Session Focus Log:** Two-point health intake (primary weekly goals & digestive concerns) that persists directly to the practitioner's view.
+- **Self-Service Booking & Management:** Real-time conflict validation (double-booking prevention), slot rescheduling, and cancellation.
+- **Separated Reservation Lists:** Filter upcoming versus past consultations displaying assigned clinical consultants.
 
-If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and [`typescript-eslint`](https://typescript-eslint.io) in your project.
+### 📋 Nutritionist Portal
+- **Operational Metrics Bar:** Live tallies for total consultations, daily bookings, and patient attendance rates.
+- **Appointment Registry & Filters:** Search by patient name or phone number, with an instant "Today Only" toggle.
+- **WhatsApp Reminder Integration:** Generate one-click formatted text reminders ready to copy to the clipboard.
+- **Status Controls:** Update booking statuses (`Booked`, `Completed`, `Cancelled`) on the fly.
+
+### ⚙️ Architecture & Persistence
+- **State Persistence:** Preserves all mutations, custom appointments, and active dashboard view (`wellness_active_view`) across page reloads via `localStorage`.
+- **Conflict Prevention Engine:** Strict validation ensuring identical slots cannot be double-booked.
+- **Sample Reset:** Dedicated one-click restoration to default seed datasets for easy demonstrations.
+
+---
+
+## 🛠️ Tech Stack
+
+- **Framework:** React 18 (Vite)
+- **Styling:** Tailwind CSS (v3.4.17), PostCSS, Autoprefixer
+- **Icons:** Lucide React
+- **Deployment:** Vercel
+
+---
+
+## 💻 Local Setup & Development
+
+1. **Clone the repository:**
+   ```bash
+   git clone [https://github.com/Paayas-tech/wellness-appointments-portal.git](https://github.com/Paayas-tech/wellness-appointments-portal.git)
+   cd wellness-appointments-portal
