@@ -5,9 +5,8 @@ A responsive, dual-sided appointment management web application built with **Rea
 ---
 
 ## 🚀 Live Demo
-- **Live Deployment:** [View on Vercel](https://wellness-appointments-portal.vercel.app) *(replace with your exact Vercel link)*
+- **Live Deployment:** [wellness-appointments-portal.vercel.app](https://wellness-appointments-portal.vercel.app)
 - **GitHub Repository:** [Paayas-tech/wellness-appointments-portal](https://github.com/Paayas-tech/wellness-appointments-portal)
-
 ---
 
 ## 🌟 Key Features
